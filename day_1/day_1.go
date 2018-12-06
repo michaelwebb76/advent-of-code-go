@@ -15,18 +15,14 @@ func check(e error) {
 	}
 }
 
-func main() {
-	flag.Parse()
-
-	filename := flag.Arg(0)
-
+func fileToIntArray(filename string) []int {
 	f, err := os.Open(filename)
 	check(err)
 	defer f.Close()
 
 	reader := bufio.NewReader(f)
+	intArray := make([]int, 0, 32768)
 
-	frequency := 0
 	for err == nil {
 		line, _, err := reader.ReadLine()
 
@@ -37,21 +33,29 @@ func main() {
 		if err == nil {
 			lineString := string(line)
 
-			sign := lineString[0:1]
-			number := lineString[1:len(lineString)]
-
-			if newFrequency, err := strconv.Atoi(number); err == nil {
-				if sign == "+" {
-					frequency += newFrequency
-				} else {
-					frequency -= newFrequency
-				}
+			if intValue, err := strconv.Atoi(lineString); err == nil {
+				intArray = append(intArray, intValue)
 			} else {
 				panic(err)
 			}
 		}
 	}
-	fmt.Println(frequency)
 
-	return
+	return intArray
+}
+
+func sumFrequency(intArray []int) int {
+	frequency := 0
+	for _, intValue := range intArray {
+		frequency += intValue
+	}
+	return frequency
+}
+
+func main() {
+	flag.Parse()
+
+	filename := flag.Arg(0)
+	intArray := fileToIntArray(filename)
+	fmt.Println("Sum frequency is: " + strconv.Itoa(sumFrequency(intArray)))
 }
